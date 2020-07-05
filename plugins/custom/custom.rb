@@ -11,6 +11,15 @@ module AresMUSH
     end
  
     def self.get_cmd_handler(client, cmd, enactor)      
+      case cmd.root
+      when "hooks"
+        case cmd.switch
+        when "set"
+          return SetHooksCmd
+        else
+          return ViewHooksCmd
+        end
+      end
       return nil
     end
   end
