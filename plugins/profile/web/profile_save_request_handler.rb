@@ -24,36 +24,16 @@ module AresMUSH
         if (!char.is_approved? && !manager)
           return { error: t('profile.not_yet_approved') }
         end
-              
-        request.args[:demographics].each do |name, value|
-          if (value.blank? && Demographics.required_demographics.include?(name))
-            return { error: t('webportal.missing_required_field', :name => name) }
-          end
-          if (name == 'birthdate')
-            # Standard db format
-            if (value =~ /\d\d\d\d-\d\d-\d\d/)
-              char.update_demographic name, value
-            # Game-specific format
-            else
-              result = Demographics.set_birthday(char, value)
-              if (result[:error])
-                return { error: result[:error] }
-              end
-            end
-          else
-            char.update_demographic name, value
-          end
-        end
         
-        tags = (request.args[:tags] || []).map { |t| t.downcase }.select { |t| !t.blank? }
         gallery = (request.args[:profile_gallery] || '').split.map { |g| g.downcase }
         profile_image = build_image_path(char, request.args[:profile_image])
         profile_icon = build_image_path(char, request.args[:profile_icon])
         char.update(profile_image: profile_image)
         char.update(profile_icon: profile_icon)
         char.update(profile_gallery: gallery)
-        char.update(profile_tags: tags)
         char.update(profile_order: (request.args[:profile_order] || "").split(',').map { |o| o.strip })
+        
+        Website.update_tags(char, request.args[:tags])
         
         relationships = {}
         (request.args[:relationships] || {}).each do |name, data|
@@ -66,38 +46,44 @@ module AresMUSH
             }
         end
         
-        char.update(rp_hooks: Website.format_input_for_mush(request.args[:rp_hooks]))
         char.update(relationships: relationships)
-        char.update(bg_shared: request.args[:bg_shared].to_bool)
-        char.update(idle_lastwill: Website.format_input_for_mush(request.args[:lastwill]))
         
         relation_category_order = (request.args[:relationships_category_order] || "").split(',').map { |o| o.strip }
         char.update(relationships_category_order: relation_category_order)
         
-        Describe.save_web_descs(char, request.args['descs'])
-
-        errors = CustomCharFields.save_fields_from_profile_edit(char, request.args) || []
-        if (errors.class == Array && errors.any?)
-          return { error: errors.join("\n") }
+              
+        error = Demographics.save_web_profile_data(char, enactor, request.args)
+        if (error)
+          return { error: error }
         end
         
-        if (Roles.can_assign_role?(enactor))
-          error = Roles.save_web_roles(char, request.args['roles'], enactor)
+        error = Chargen.save_web_profile_data(char, enactor, request.args)
+        if (error)
+          return { error: error }
+        end
+        
+        error = Idle.save_web_profile_data(char, enactor, request.args)
+        if (error)
+          return { error: error }
+        end
+        
+        Describe.save_web_descs(char, request.args['descs'])
+
+        if Manage.is_extra_installed?("prefs")
+          error = Prefs.save_web_profile_data(char, enactor, request.args)
           if (error)
             return { error: error }
           end
         end
-
-        if (Idle.can_manage_roster?(enactor))
-          Idle.save_web_roster_fields(char, request.args['roster'])
+        
+        error = Roles.save_web_profile_data(char, enactor, request.args)
+        if (error)
+          return { error: error }
         end
         
-        if (Chargen.can_manage_bgs?(enactor))
-          char.update(cg_background: Website.format_input_for_mush(request.args[:background]))
-        end
-        
-        if (Idle.can_idle_sweep?(enactor))
-          char.update(idle_notes: Website.format_input_for_mush(request.args[:idle_notes]))
+        errors = CustomCharFields.save_fields_from_profile_edit(char, request.args) || []
+        if (errors.class == Array && errors.any?)
+          return { error: errors.join("\n") }
         end
         
         ## DO PROFILE LAST SO IT TRIGGERS THE SOURCE HISTORY UPDATE

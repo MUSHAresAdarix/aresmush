@@ -58,7 +58,7 @@ module AresMUSH
           {
             name: char.name,
             id: char.id,
-            military_name: Ranks.is_enabled? ? Ranks.military_name(char) : char.fullname,
+            profile_title: Ranks.is_enabled? ? Profile.profile_title(char) : char.fullname,
             fields: fields,
             icon: Website.icon_for_char(char),
             roster_notes: Website.format_markdown_for_html(char.roster_notes || ""),
@@ -67,6 +67,7 @@ module AresMUSH
             contact: char.roster_contact,
             groups: groups,
             demographics: demographics,
+            app_pending: char.roster_job ? true: false
         }        
       end
       

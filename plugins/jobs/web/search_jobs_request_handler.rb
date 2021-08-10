@@ -8,6 +8,7 @@ module AresMUSH
         search_category = (request.args[:searchCategory] || "").strip
         search_status = (request.args[:searchStatus] || "").strip
         search_token = request.args[:searchToken] || ""
+        search_tag = request.args[:searchTag] || ""
         enactor = request.enactor
         
         error = Website.check_login(request)
@@ -23,7 +24,7 @@ module AresMUSH
           end
         
           if (!search_category.blank?)
-            jobs = jobs.select { |j| j.category == search_category }
+            jobs = jobs.select { |j| j.job_category.name == search_category }
           end
         
           if (!search_status.blank?)
@@ -43,13 +44,17 @@ module AresMUSH
             jobs = jobs.select { |j| "#{j.description} #{Jobs.visible_replies(enactor, j).map { |r| r.message }.join(' ')}" =~ /\b#{search_text}\b/i }
           end
                         
+          if (!search_tag.blank?)
+            jobs_with_tag = ContentTag.find(content_type: 'AresMUSH::Job', name: search_tag.downcase).map { |t| "#{t.content_id}" }
+            jobs = jobs.select { |c| jobs_with_tag.include?("#{c.id}") }
+          end
         
           data = jobs.sort_by { |j| j.created_at }.reverse.map { |j| {
               id: j.id,
               title: j.title,
               unread: j.is_unread?(enactor),
               created: j.created_date_str(enactor),
-              category: j.category,
+              category: j.job_category.name,
               status: j.status,
               author: j.author_name,
               assigned_to: j.assigned_to ? j.assigned_to.name : "--"

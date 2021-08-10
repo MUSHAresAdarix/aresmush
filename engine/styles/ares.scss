@@ -64,9 +64,14 @@ BASIC CONTAINERS
 }
 
 .thumbnail-gallery {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.thumbnail-gallery-item {
     height: 150px; 
-    width: 150px;
-    float:left;
+    width: 150px;    
 }
 
 .code-editor {
@@ -358,6 +363,14 @@ textarea,
   padding: 4px; }
 
 
+input.color-select {
+  height: 40px;
+}
+
+.ember-basic-dropdown-trigger {
+  min-width: 100px;
+}
+
 li hr { 
     margin: 2px;
     border-color: $secondary-color;
@@ -410,6 +423,15 @@ BOOTSTRAP OVERRIDES
 .panel-default > .panel-heading {
     background-color: $border-color;
     border-color: $border-color;
+}
+
+.panel-primary > .panel-heading {
+    background-color: $secondary-color;
+    border-color: $secondary-color;
+}
+
+.panel-primary, .panel-default {
+  border-top: none;
 }
 
 .btn-primary {
@@ -1210,6 +1232,11 @@ CHARACTERS SCREEN
     background-image:url('/game/uploads/theme_images/box-bg.png');
 }
 
+.achievement-levels {
+  padding-top: 5px;
+  color: #bbb;
+}
+
 table.char-ability-list { 
   width: 100%;
 }
@@ -1314,7 +1341,7 @@ input[type='file'] {
 }
 
 #combat-log {
-  max-height: 100px;
+  max-height: 200px;
   overflow-y: scroll;
   overflow-x: hidden;
   margin: 5px;
@@ -1350,7 +1377,8 @@ CHAT SCREEN
 ------------------------- */
 
 #chat-window {
-    max-height: 400px;
+    height: calc(100vh - 400px);
+    min-height: 400px;
     overflow-y: scroll;
     overflow-x: hidden;
     border: 1px solid $border-color;
@@ -1367,6 +1395,21 @@ CHAT SCREEN
 
 .play-sidebar:hover { 
   overflow-y: auto;
+}
+
+.play-scene-title {
+  font-size: 2em;
+  color: $faded-text-color;
+}
+
+.play-scene-context-prompt {
+  font-weight: bold;  
+  font-size: 1.5em;
+  color: $text-color;
+}
+
+.play-scene-context-wrap {
+  margin-top: 10px;
 }
 
 .play-hint {
@@ -1515,6 +1558,10 @@ JOBS SCREEN
   margin: 0px;
 }
 
+.preset-responses {
+  margin: 5px 0px 15px 0px;
+}
+
 /* -------------------------
 OTHER
 ------------------------- */
@@ -1579,6 +1626,11 @@ OTHER
   margin-bottom: 10px;
 }
 
+.wiki-page-columns {
+  column-count: 3;
+  
+}
+
 .help-heading {
   margin-top: 5px;
 }
@@ -1629,6 +1681,16 @@ ul.reference-help-list > li:not(:last-child)::after {
 
 .server-migration {
   padding-right: 10px;
+}
+
+.prefs-list-item {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid $border-color;
+  padding: 10px;
+}
+.prefs-list-description {
+  padding-left: 20px;
 }
 /*.char-scene-list li:before { content: "\2666  "; }*/
 
@@ -1705,6 +1767,10 @@ h3 {
   min-height: 100px;
 }
 
+.wiki-page-columns {
+  column-count: 1;
+  
+}
 
 }
 

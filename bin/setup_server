@@ -12,7 +12,7 @@ add-apt-repository -y ppa:chris-lea/redis-server
 
 apt-get -y update
 apt-get -y install dialog apt-utils
-apt-get -y upgrade
+apt-get -y -o Dpkg::Options::="--force-confnew" upgrade
 
 # #########################################################################################
 
@@ -51,12 +51,6 @@ apt-get install -y python
 
 echo -e "${ARES_INSTALL_TEXT} Redis database"
 apt-get install -y redis-server
-
-# #########################################################################################
-
-echo -e "${ARES_INSTALL_TEXT} Redis needs Transparent Huge Pages kernel feature disabled."
-apt-get install -y hugepages
-hugeadm --thp-never
 
 # #########################################################################################
 

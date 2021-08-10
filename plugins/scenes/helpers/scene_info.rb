@@ -46,7 +46,8 @@ module AresMUSH
     
     def self.is_watching?(scene, char)
       return false if !char
-      scene.watchers.include?(char)
+      alts = AresCentral.play_screen_alts(char)
+      (scene.watchers.to_a & alts).any?
     end
     
     def self.is_participant?(scene, char)
@@ -55,18 +56,27 @@ module AresMUSH
     end
     
     def self.add_participant(scene, char, enactor)
+      if (!scene.watchers.include?(char))
+        scene.watchers.add char
+      end
+
       if (!scene.participants.include?(char))
         scene.participants.add char
         
-        if (!scene.completed && char != enactor)
-          message = t('scenes.scene_notify_added_to_scene', :num => scene.id)
-          Login.notify(char, :scene, message, scene.id, "", false)
-          Login.emit_ooc_if_logged_in char, message
+        if (!scene.completed)
+          scene_data = Scenes.build_live_scene_web_data(scene, char).to_json
+          alts = AresCentral.play_screen_alts(enactor)
+          Global.client_monitor.notify_web_clients(:joined_scene, scene_data, true) do |c|
+            c && alts.include?(c)
+          end
+          
+          
+          if (char != enactor)
+            message = t('scenes.scene_notify_added_to_scene', :num => scene.id)
+            Login.notify(char, :scene, message, scene.id, "", false)
+            Login.emit_ooc_if_logged_in char, message
+          end
         end
-      end
-      
-      if (!scene.watchers.include?(char))
-        scene.watchers.add char
       end
     end
     
@@ -74,6 +84,7 @@ module AresMUSH
       matched_rooms = Room.find_by_name_and_area location
       area = nil
       vistas = {}
+      details = {}
       
       if (matched_rooms.count == 1)
         room = matched_rooms.first
@@ -83,6 +94,7 @@ module AresMUSH
           description = "%xh#{room.name}%xn%R#{room.description}"
           area = room.area
           vistas = room.vistas
+          details = room.details
         end
       else
         description = location
@@ -96,6 +108,7 @@ module AresMUSH
         scene.room.update(description: description)
         scene.room.update(area: area)
         scene.room.update(vistas: vistas)
+        scene.room.update(details: details)
       end
       
       data = Scenes.build_location_web_data(scene).to_json

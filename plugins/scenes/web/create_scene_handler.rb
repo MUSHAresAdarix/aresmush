@@ -74,8 +74,7 @@ module AresMUSH
           end
         end      
       
-        tags = (request.args[:tags] || []).map { |t| t.downcase }.select { |t| !t.blank? }
-        scene.update(tags: tags)
+        Website.update_tags(scene, request.args[:tags])
       
         if (!log.blank?)
           Scenes.add_to_scene(scene, log, enactor)
@@ -88,6 +87,7 @@ module AresMUSH
             split_log = log.split
             split_log = split_log[0..split_log.count/participants.count].join(" ")
             Scenes.handle_word_count_achievements(p, split_log)
+            Scenes.handle_scene_participation_achievement(p, scene)
           end
           
         else

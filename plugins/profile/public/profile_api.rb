@@ -43,7 +43,7 @@ module AresMUSH
     end
     
     def self.get_player_tag(char)
-      player_tag = char.profile_tags.select { |t| t.start_with?("player:") }.first
+      player_tag = char.content_tags.select { |t| t.start_with?("player:") }.first
       return nil if !player_tag
       player_tag = player_tag.after(":")
       player_tag.blank? ? nil : player_tag
@@ -71,5 +71,17 @@ module AresMUSH
       end
       return errors
     end
+    
+    # The name that shows up as a "title" on profile displays.
+    def self.profile_title(char)
+      if (Ranks.is_enabled?)
+        Ranks.military_name(char)
+      elsif !Global.read_config("demographics", "nickname_field").blank?
+        Demographics.name_and_nickname(char)
+      else
+        Demographics.firstname_lastname(char)
+      end
+    end
+    
   end
 end

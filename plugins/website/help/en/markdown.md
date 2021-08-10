@@ -81,7 +81,7 @@ There are several social media codes to make it easy to embed playlists, videos 
 
 `[[musicplayer E5TsA6CHpII Description]]`
 `[[pinterest Rreader01/agent-carter]]`
-`[[spotify 37i9dQZEVXbLRQDuF5jeBp]]`
+`[[spotify 37i9dQZEVXbLRQDuF5jeBp linktype]]` - linktype can be 'playlist' (default) or 'track'
 `[[youtube E5TsA6CHpII]]`
 
 ## Collapsible Text
@@ -110,6 +110,15 @@ Tag names may be prefixed with a hyphen to exclude the tag.  By default, multipl
 * "picon caprica +navy" would include characters with _either_ the Picon/Caprica tags _and_ the Navy tag.
 
 Note: Character lists include only active PCs by default. To include all characters (including idled out and NPCs), add the special "all" tag to your tags list. For example: `chargallery navy all`.
+
+## Plot Scene List
+
+In addition to the basic scene list, you can generate a list of scenes in a specific plot, optionally limited to a particular character.
+
+`[[plotscenelist plot=4]]`
+`[[plotscenelist plot=6 char=Ryan]]`
+
+You can find a plot's ID number by going to the plot page and looking at the URL (e.g., http://yourgame.com/plot/6 would be ID 6).
 
 ## Category Lists
 

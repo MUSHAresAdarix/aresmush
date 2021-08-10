@@ -19,11 +19,7 @@ module AresMUSH
     end
     
     def self.military_name(char)
-      fullname = char.fullname
-      
-      return fullname if !Ranks.is_enabled?
-      
-      names = fullname.split(" ")
+      names = char.fullname.split(" ")
       if names.count == 1
         first_name = names[0]
         last_name = ""
@@ -65,6 +61,12 @@ module AresMUSH
       }
       
       groups_data['all_ranks'] = Global.read_config('ranks', 'ranks')
+    end
+    
+    def self.build_web_profile_data(char, viewer)
+      {
+        military_name: Ranks.military_name(char)
+      }
     end
   end
 end
